@@ -1,10 +1,19 @@
 import { NavBar, DatePicker } from 'antd-mobile';
 import './index.scss';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
+import { useSelector } from 'react-redux';
+import _ from 'lodash';
 
 const Month = () => {
+    // 獲得數據
+    const { billList } = useSelector(state => state.bill);
+    const monthGroup =  useMemo(() => {
+        // 按月做數據分組
+        return _.groupBy(billList,item=> dayjs(item.date).format('YYYY-MM'))
+    }, [billList])
+    console.log(monthGroup);
     // 談框開關
     const [dateVisible, setDateVisible] = useState(false);
     // 時間顯示
