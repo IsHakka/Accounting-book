@@ -1,10 +1,11 @@
 import { NavBar, DatePicker } from 'antd-mobile';
 import './index.scss';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import { useSelector } from 'react-redux';
 import _ from 'lodash';
+import DayBill from './components/DayBill';
 
 const Month = () => {
     // 獲得數據
@@ -32,12 +33,30 @@ const Month = () => {
         }
 
     }, [currentMonthList])
+
+    // 初始化當前月數據
+    useEffect(() => {
+        const newDate = dayjs(new Date()).format('YYYY-MM')
+        if (monthGroup[newDate]) {
+            setMonthList(monthGroup[newDate])
+        }
+    }, [monthGroup])
+
     const onConfirm = (date) => {
         setDateVisible(false);
         const formatDate = dayjs(date).format('YYYY-MM');
         setMonthList(monthGroup[formatDate])
         setCurrentDate(formatDate);
     }
+    // 當前日來分組
+    const dayGroup = useMemo(() => {
+        const groupDate = _.groupBy(currentMonthList, item => dayjs(item.date).format('YYYY-MM-DD'))
+        const keys = Object.keys(groupDate)
+        return {
+            groupDate,
+            keys
+        }
+    }, [currentMonthList])
 
     return (
         <div className="monthlyBill">
@@ -80,6 +99,10 @@ const Month = () => {
                         onClose={() => setDateVisible(false)}
                     />
                 </div>
+                {
+                    dayGroup.keys.map(key=>(<DayBill key={key} date={key} billList={dayGroup.groupDate[key]}></DayBill>))
+                }
+               
             </div>
         </div >
     )
